@@ -1,6 +1,6 @@
 import sqlite3
 
-conn = sqlite3.connect("social_academy.db")
+conn = sqlite3.connect("redesocial.db")
 cursor = conn.cursor()
 
 cursor.execute("""
