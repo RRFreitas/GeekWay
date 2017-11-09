@@ -39,11 +39,17 @@ class Comentario():
     def deletar(self, id):
         conn = sqlite3.connect('redesocial.db')
         cursor = conn.cursor()
-        cursor.execute("""
-        DELETE FROM tb_comentario WHERE 'id' = id;
-        """)
+        cursor.execute("DELETE FROM tb_comentario WHERE id = ?", (id,))
         conn.commit()
         conn.close()
 
     def atualizar(self, mensagem, dataHora, curtidas):
-        pass
+        conn = sqlite3.connect('redesocial.db')
+        cursor = conn.cursor()
+        cursor.execute("""
+                          UPDATE tb_comentario
+                          SET mensagem = ?, dataHora = ?, curtidas = ?
+                          WHERE id = ?;
+                      """, (mensagem, dataHora, curtidas, id))
+        conn.commit()
+        conn.close

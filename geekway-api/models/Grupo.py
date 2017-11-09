@@ -39,11 +39,17 @@ class Grupo():
     def deletar(self, id):
         conn = sqlite3.connect('redesocial.db')
         cursor = conn.cursor()
-        cursor.execute("""
-        DELETE FROM tb_grupo WHERE 'id' = id;
-        """)
+        cursor.execute("DELETE FROM tb_grupo WHERE id = ?", (id,))
         conn.commit()
         conn.close()
 
     def atualizar(self, criador, dataCriacao, descricao):
-        pass
+        conn = sqlite3.connect('redesocial.db')
+        cursor = conn.cursor()
+        cursor.execute("""
+                          UPDATE tb_grupo
+                          SET criador = ?, dataCriacao = ?, descricao = ?
+                          WHERE id = ?;
+                      """, (criador, dataCriacao, descricao, id))
+        conn.commit()
+        conn.close

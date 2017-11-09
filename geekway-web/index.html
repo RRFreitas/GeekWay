@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html ng-app="app" lang="pt-BR">
+<head>
+    <!-- Título e Ícone -->
+    <title>Rede Social</title>
+
+    <!-- Charser Encoding -->
+    <meta charset="utf-8"/>
+
+    <!-- AngularJS & Lib imports -->
+    <script type="text/javascript" src="lib/angular/angular.min.js"></script>
+    <script type="text/javascript" src="lib/angular/angular-route.min.js"></script>
+    <script type='text/javascript' src="lib/ui-router.js"></script>
+    <script type="text/javascript" src="lib/angular/angular-messages.min.js"></script>
+    <script type="text/javascript" src="lib/angular/angular-animate.min.js"></script>
+    <script type="text/javascript" src="lib/angular/angular-cookies.min.js"></script>
+
+    <!-- Angular Material -->
+    <script type="text/javascript" src="lib/angular-material/angular-material.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="lib/angular-material/angular-material.min.css">
+
+    <!-- App -->
+    <script src="js/app.js"></script>
+    <link rel="stylesheet" href="css/app.css"/>
+
+    <!-- Configurações -->
+    <script src="js/config/valuesConfig.js"></script>
+    <script src="js/config/routesConfig.js"></script>
+
+    <!-- Serviços -->
+    <script src="js/controllers/loginCtrl.js"></script>
+    <script src="js/services/loginService.js"></script>
+    <script src="js/services/userService.js"></script>
+
+    <!-- Outras libs -->
+    <link rel="stylesheet" href="lib/bootstrap.min.css"/>
+
+</head>
+<body>
+
+    <!--Conteúdo -->
+    <div ui-view>
+    </div>
+</body>
+</html>

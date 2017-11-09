@@ -1,0 +1,18 @@
+<link rel="stylesheet" type="text/css" href="css/login.css"/>
+
+<div class="jumbotron">
+    <h3>Rede Social</h3>
+    <hr/>
+
+    <form ng-submit="fazerLogin(user)">
+        <input class="form-control" type="email" ng-model="user.email" placeholder="E-mail"/>
+        <input class="form-control" type="password" ng-model="user.senha" placeholder="Senha"/>
+
+        <button class="btn btn-primary btn-block" type="submit"
+                ng-disabled="!user.email || !user.senha">Login
+        </button>
+    </form>
+
+    <button class="btn btn-primary btn-block" ng-click="">Registrar-se
+    </button>
+</div>

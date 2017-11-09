@@ -41,11 +41,17 @@ class Postagem():
     def deletar(self, id):
         conn = sqlite3.connect('redesocial.db')
         cursor = conn.cursor()
-        cursor.execute("""
-        DELETE FROM tb_postagem WHERE 'id' = id;
-        """)
+        cursor.execute("DELETE FROM tb_postagem WHERE id = ?", (id,))
         conn.commit()
         conn.close()
 
-    def atualizar(self, mensagem, privacidade, dataHora, curtidas):
-      pass
+    def atualizar(self, id, mensagem, privacidade, dataHora, curtidas):
+        conn = sqlite3.connect('redesocial.db')
+        cursor = conn.cursor()
+        cursor.execute("""
+                  UPDATE postagem
+                  SET mensagem = ?, privacidade = ?, dataHora = ?, curtidas = ?
+                  WHERE id = ?;
+              """, (mensagem, privacidade, dataHora, curtidas, id))
+        conn.commit()
+        conn.close

@@ -52,11 +52,17 @@ class Usuario():
     def deletar(self, id):
         conn = sqlite3.connect('redesocial.db')
         cursor = conn.cursor()
-        cursor.execute("""
-        DELETE FROM tb_usuario WHERE 'id' = id;
-        """)
+        cursor.execute("DELETE FROM tb_usuario WHERE id = ?", (id,))
         conn.commit()
         conn.close()
 
-    def atualizar(self, nome, email, senha, data_nasc, profissao, genero, cidade, estado, pais, amigos):
-        pass
+    def atualizar(self, id, nome, email, senha, data_nasc, profissao, genero, cidade, estado, pais):
+        conn = sqlite3.connect('redesocial.db')
+        cursor = conn.cursor()
+        cursor.execute("""
+            UPDATE tb_usuario
+            SET nome = ?, email = ?, senha = ?, data_nasc = ?, profissao = ?, genero = ?, cidade = ?, estado = ?, pais = ?
+            WHERE id = ?;
+        """, (nome, email, senha, data_nasc, profissao, genero, cidade, estado, pais, id))
+        conn.commit()
+        conn.close
