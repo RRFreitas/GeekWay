@@ -1,18 +1,47 @@
 <link rel="stylesheet" type="text/css" href="css/login.css"/>
 
-<div class="jumbotron">
-    <h3>Rede Social</h3>
-    <hr/>
+<div ng-include="'view/templates/toolbar-login.html'"></div>
 
-    <form ng-submit="fazerLogin(user)">
-        <input class="form-control" type="email" ng-model="user.email" placeholder="E-mail"/>
-        <input class="form-control" type="password" ng-model="user.senha" placeholder="Senha"/>
-
-        <button class="btn btn-primary btn-block" type="submit"
-                ng-disabled="!user.email || !user.senha">Login
-        </button>
-    </form>
-
-    <button class="btn btn-primary btn-block" ng-click="">Registrar-se
-    </button>
+<div layout="row" layout-align="center center" class="form-whiteframe">
+    
+    <md-card flex-gt-sm="35" flex-get-lg="30" flex-sm="50" flex-xs="90" class="form-body">
+        <!-- Título -->
+        <md-card-title>
+            <md-card-title-text layout="row" layout-align="center center">
+                <span class="md-display-2-light">Login</span>
+            </md-card-title-text>
+        </md-card-title>
+        
+        <!-- Conteúdo do formulário-->
+        <md-card-content layout="column">
+            <form layout="column" ng-submit="fazerLogin(user)">
+                
+                <!-- Input de e-mail -->
+                <md-input-container class="md-icon-float md-block">
+                    <md-icon md-svg-src="img/icons/ic_person_24px.svg"></md-icon>
+                    <label>E-mail</label>
+                    <input ng-model="user.email" type="email" ng-required="true">
+                </md-input-container>
+                
+                <!-- Input de senha -->
+                <md-input-container class="md-icon-float md-block">
+                    <label>Senha</label>
+                    <md-icon md-svg-src="img/icons/ic_lock.svg" class="name"></md-icon>
+                    <input ng-model="user.senha" type="password" ng-required="true">
+                </md-input-container>
+                
+                <!-- Botão de login -->
+                <md-button type="submit" class="md-raised ms-privary md-hue-1">Entrar</md-button>
+            </form>
+            
+            <div layout="row" style="margin-top: 17px">
+                <span flex></span>
+                <span class="md-subhead">OU</span>
+                <span flex></span>
+            </div>
+            
+            <!-- Botão de registro -->
+            <md-button class="md-privary md-hue-1" ui-sref="">Registrar-se</md-button>
+        </md-card-content>
+    </md-card>
 </div>
