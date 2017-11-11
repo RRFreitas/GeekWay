@@ -8,4 +8,8 @@ angular.module("app").config(function ($stateProvider, $urlRouterProvider) {
             controller: 'loginCtrl',
             templateUrl: 'view/login.html'
         })
+        .state('register', {
+            url: '/register',
+            templateUrl: 'view/register.html'
+        })
 });

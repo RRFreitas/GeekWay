@@ -1,13 +1,9 @@
-h3 {
-    text-align: center;
-}
-
-.form-body {
-    border-radius: 7px;
-}
-
 body {
     background-image: url("../img/background.jpg");
     background-repeat: no-repeat;
     background-size: cover
+}
+
+.form-body {
+    border-radius: 7px;
 }
