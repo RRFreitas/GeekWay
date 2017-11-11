@@ -1,6 +1,6 @@
 angular.module("app").config(function ($stateProvider, $urlRouterProvider) {
 
-    $urlRouterProvider.otherwise('/login');
+    $urlRouterProvider.otherwise('/home');
 
     $stateProvider
         .state('login', {
@@ -10,6 +10,12 @@ angular.module("app").config(function ($stateProvider, $urlRouterProvider) {
         })
         .state('register', {
             url: '/register',
+            controller: 'registerCtrl',
             templateUrl: 'view/register.html'
+        })
+        .state("home", {
+            url: '/home',
+            controller: 'homeCtrl',
+            templateUrl: 'view/home.html'
         })
 });
