@@ -7,7 +7,7 @@ cursor.execute("""
     CREATE TABLE tb_usuario(
         id integer PRIMARY KEY AUTOINCREMENT,
         nome varchar(100) NOT NULL,
-        email varchar(50) NOT NULL,
+        email varchar(50) NOT NULL UNIQUE,
         senha varchar(20) NOT NULL,
         data_nasc date,
         profissao varchar(30),

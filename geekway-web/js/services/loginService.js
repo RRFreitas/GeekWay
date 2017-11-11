@@ -1,6 +1,6 @@
 angular.module("app").factory("loginService", function ($http, config) {
 
-    var _path = config.baseUrl() + "/user";
+    var _path = config.baseUrl() + "";
 
     var _fazerLogin = function (user) {
         return $http.post(_path + "/login", user);

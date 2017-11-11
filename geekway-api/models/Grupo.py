@@ -1,16 +1,29 @@
 import sqlite3
+from flask_restful import fields
+from models.Usuario import usuario_campos
 
+grupo_campos = {
+    'criador_id': fields.Integer(attribute="criador.id"),
+    'dataCriacao': fields.DateTime,
+    'descricao': fields.String,
+    'participantes': fields.List(fields.Nested(usuario_campos))
+}
+
+'''
+    Classe Grupo.
+'''
 class Grupo():
-    def __init__(self, criador, dataCriacao, descricao):
+    def __init__(self, criador, dataCriacao, descricao, participantes):
         self.criador = criador
         self.dataCriacao = dataCriacao
         self.descricao = descricao
+        self.participantes = participantes
 
     def inserir(self):
         conn = sqlite3.connect('redesocial.db')
         cursor = conn.cursor()
         cursor.execute("""
-            INSERT INTO tb_grupo (criador, dataCriacao, descricao)
+            INSERT INTO tb_grupo (criador, data_criacao, descricao)
             VALUES (?,?,?)
             """, (self.criador, self.dataCriacao, self.descricao))
 

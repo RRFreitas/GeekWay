@@ -4,8 +4,8 @@ angular.module("app").value("config", {
 
 		var _protocol = "http://"
 		var _externalDNS = "localhost";
-		var _externalIP = "0.0.0.0";
-		var _internalIP = "0.0.0.0";
+		var _externalIP = "localhost";
+		var _internalIP = "localhost";
 		var _port = "5000";
 		var _context = "/api";
 

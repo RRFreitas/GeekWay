@@ -1,13 +1,19 @@
-from models.Usuario import Usuario
+from flask import Flask, Blueprint
+from flask_restful import Api
+from flask_cors import CORS
+from resources.LoginResource import LoginResource
 
-def main():
-    usuario = Usuario("Rennan", "rennan@gmail.com", "123", "01/11/2017", "Data Scientist", "Masculino", "Campina", "PB", "BR", [])
-    #usuario.inserir()
-    #usuario.deletar(5)
-    #print(usuario.listar()[0].nome)
+app = Flask(__name__)
+app.config['DEBUG'] = True
 
-   # usuario.atualizar(6, "Rennan2", "rennan@gmail.com", "123", "01/11/2017", "Data Scientist", "Masculino", "Campina", "PB", "BR")
-    print(usuario.listar()[0].nome)
+api_bp = Blueprint('api', __name__)
+api = Api(api_bp, prefix='/api')
+
+api.add_resource(LoginResource, '/login')
+
+app.register_blueprint(api_bp)
+
+cors = CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 if __name__ == '__main__':
-    main()
+    app.run(host='0.0.0.0')
