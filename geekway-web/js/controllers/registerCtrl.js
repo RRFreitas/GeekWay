@@ -6,7 +6,7 @@ angular.module("app").controller("registerCtrl", function($scope, registerServic
         registerService.fazerRegistro(user).then(function (data, status) {
              console.Log("teste");
             if(status == 200) {
-                userService.storeUser(data);
+                userService.storeToken(data);
                 $state.go("home")
             }
         });

@@ -1,11 +1,13 @@
 angular.module("app").controller("homeCtrl", function ($scope, userService, $state) {
+    
+    $scope.user = {};
 
     verificarLogin = function() {
-        user = userService.getUser();
+        token = userService.getToken();
         
-        console.log(user);
+        console.log(token);
         
-        if(user == null) {
+        if(token == null) {
             $state.go("login");
         }
     };

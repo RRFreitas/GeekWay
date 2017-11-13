@@ -1,6 +1,5 @@
 from flask_restful import Resource
 from flask import request
-from sqlalchemy import exc
 from models.Usuario import Usuario
 
 class LoginResource(Resource):
@@ -18,7 +17,7 @@ class LoginResource(Resource):
                 else:
                     usuario.generate_auth_token()
 
-        except exc.SQLAlchemyError:
+        except:
             return "", 500
 
         return usuario.token, 200

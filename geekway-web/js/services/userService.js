@@ -1,20 +1,24 @@
 angular.module("app").factory("userService", function($cookies) {
 
-    var _storeUser = function (user) {
-        $cookies.putObject("user", user);
+    var _storeToken = function (token) {
+        $cookies.putObject("token", token);
     };
 
-    var _removeUser = function (user) {
-        $cookies.remove("user");
+    var _removeToken = function (token) {
+        $cookies.remove("token");
     };
 
-    var _getUser = function () {
-        return $cookies.getObject("user");
+    var _getToken = function () {
+        return $cookies.getObject("token");
+    };
+    
+    var _storeUser = function(user) {
+        
     };
 
     return {
-            removeUser: _removeUser,
-    		getUser: _getUser,
-            storeUser: _storeUser
+            removeToken: _removeToken,
+    		getToken: _getToken,
+            storeToken: _storeToken
     };
 });

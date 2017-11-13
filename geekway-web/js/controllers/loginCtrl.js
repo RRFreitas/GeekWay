@@ -3,18 +3,18 @@ angular.module("app").controller("loginCtrl", function ($scope, loginService, us
     $scope.user = {};
     
     verificarLogin = function() {
-        user = userService.getUser();
+        token = userService.getToken();
         
-        console.log(user);
+        console.log(token);
         
-        if(user != null) {
+        if(token != null) {
             $state.go("home");
         }
     };
 
     $scope.fazerLogin = function (user) {
         loginService.fazerLogin(user).then(function (data, status) {
-                userService.storeUser(data);
+                userService.storeToken(data);
                 $state.go("home");
             });
     };
