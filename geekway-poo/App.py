@@ -2,7 +2,7 @@ from CreateDB import criarBanco
 from models.Usuario import Usuario
 
 def menuUsuario(usuario):
-    print("\n\n\n\n\n\n\n\n")
+    limparTela()
     print("Bem vindo, " + usuario.nome + "!")
 
     op = 100
@@ -20,17 +20,30 @@ def menuUsuario(usuario):
             print("Essa não é uma opção válida...\n\n\n")
             continue
 
+        #Opção de logout, quando usada quebra o laço, saindo do menu de usuário e voltando para menu principal.
         if(op == 0):
             break
+
+        #Opção de adicionar amigo, pede o nome da pessoa, procura todos os usuários com esse nome e lista com seu respectivo id,
+        #verifica se nenhum usuário foi encontrado
+        #se só 1 usuário for encontrado, ele já enviar a solicitação
+        #se mais de 1 usuário for encontrado, pede para especificar o id do usuário e em seguida envia solicitação
         elif(op == 1):
             nome = input("Digite o nome da pessoa: ")
             users = Usuario.findUsersByName(nome)
 
             if len(users) == 0:
+                limparTela()
                 print("Nenhum usuário com esse nome foi encontrado.")
                 continue
             elif len(users) == 1:
+                if(usuario.isFriend(users[0].id)):
+                    limparTela()
+                    print(users[0].nome + " já é seu amigo!")
+                    continue
+
                 usuario.solicitacaoAmizade(users[0].id)
+                limparTela()
                 print("Solicitação de amizade enviada!\n\n")
             else:
                 for user in users:
@@ -42,12 +55,22 @@ def menuUsuario(usuario):
                     print("Usuário com esse ID não encontrado.\n\n")
                     continue
                 else:
+                    if (usuario.isFriend(id)):
+                        print(Usuario.findUserById(id).nome + " já é seu amigo!")
+                        continue
                     usuario.solicitacaoAmizade(id)
                     print("Solicitação de amizade enviada!\n\n")
+
+        #Opção que lista todos os amigos do usuário
         elif(op == 2):
+            limparTela()
             for user in usuario.listarAmigos():
                 print(user.nome)
+
+        #Opção que lista todas as solicitações de amizade pendentes
         elif(op == 3):
+            if(len(usuario.listarSolicitacoes()) == 0):
+                print("Nenhuma solicitação pendente!")
 
             for solicitacao in usuario.listarSolicitacoes():
                 if(not solicitacao[1] is None):
@@ -58,7 +81,11 @@ def menuUsuario(usuario):
 
                         if(op1.lower().startswith("s")):
                             usuario.aceitarAmizade(solicitacao[1])
-                            print("\n\n\n\nAmizade aceita!")
+                            limparTela()
+                            print("Amizade aceita!")
+
+        #Lista os amigos com seus respectivos ids, e em seguida pede o id do usuário a enviar a mensagem, e depois a mensagem
+        #Obs: No momento, o usuário pode enviar mensagem para um id que não é seu amigo. (A consertar)
         elif(op == 4):
             for user in usuario.listarAmigos():
                 print(str(user.id) + " - " + str(user.nome))
@@ -73,14 +100,19 @@ def menuUsuario(usuario):
             msg = input("Digite a mensagem que deseja enviar: ")
 
             usuario.enviarMensagem(id, msg)
-            print("\n\n\n\nMensagem privada enviada com sucesso!")
+            limparTela()
+            print("Mensagem privada enviada com sucesso!")
 
+        #Lista todas as mensagens enviadas e recebidas.
         elif(op == 5):
             msgs = usuario.listarMensagens()
-            print("\n\n\n\n")
+            limparTela()
 
             for msg in msgs:
                 print(Usuario.findUserById(msg[2]).nome + " para " + Usuario.findUserById(msg[1]).nome + ": " + msg[3])
+
+def limparTela():
+    print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
 
 def menu():
     op = 100
@@ -92,24 +124,34 @@ def menu():
                            "2 - Registrar\n"
                            "0 - Sair\n"))
         except:
+            limparTela()
             print("Essa não é uma opção válida...\n\n\n")
             continue
 
+        #Quebra o laço e finaliza o programa
         if(op == 0):
             print("Volte sempre...")
             return
+
+        #Pede email e senha e em seguida verifica se existe no banco
+        #se for autenticado, vai para o menu de usuário
         elif(op == 1):
             email = input("Digite seu email: ")
             senha = input("Digite sua senha: ")
 
             if(Usuario.verificar_login(email, senha)):
+                limparTela()
                 print("Logado com sucesso!\n\n\n")
 
                 usuario = Usuario.findUserByEmail(email)
                 menuUsuario(usuario)
             else:
+                limparTela()
                 print("Login inválido.\n\n\n")
                 continue
+
+        #Pede informações de cadastro e verifica se email já existe.
+        #se cadastrar, redireciona para menu de usuário
         elif(op == 2):
             nome = input("Digite seu nome: ")
             email = None
@@ -133,12 +175,18 @@ def menu():
                 print("Erro!")
                 continue
 
+            limparTela()
             print("Cadastrado com sucesso!\n\n\n")
 
             menuUsuario(user)
 
+        limparTela()
+
 def main():
+    #Função para criar o banco com todas as tabelas.
     criarBanco()
+
+    #Menu principal
     menu()
 
 if __name__ == '__main__':

@@ -29,6 +29,7 @@ class Usuario():
         conn.commit()
         conn.close()
 
+    #Lista todos os usuários
     @staticmethod
     def listar():
         usuarios = []
@@ -74,12 +75,14 @@ class Usuario():
         conn.commit()
         conn.close
 
+    #Verifica se a senha informada está correta.
     def verificar_senha(self, password):
         if password == self.senha:
             return True
         else:
             return False
 
+    #Aceita solicitação de amizade e registra no banco.
     def aceitarAmizade(self, id):
         conn = sqlite3.connect("redesocial.db")
         cursor = conn.cursor()
@@ -96,6 +99,7 @@ class Usuario():
         conn.commit()
         conn.close()
 
+    #Envia solicitação de amizade para um usuário, registrando no banco.
     def solicitacaoAmizade(self, id):
         conn = sqlite3.connect('redesocial.db')
         cursor = conn.cursor()
@@ -107,6 +111,7 @@ class Usuario():
         conn.commit()
         conn.close()
 
+    #Lista toos os amigos
     def listarAmigos(self):
         conn = sqlite3.connect('redesocial.db')
         cursor = conn.cursor()
@@ -129,6 +134,7 @@ class Usuario():
 
         return amigos
 
+    #Lista todas as solicitações, estando pendente ou não.
     def listarSolicitacoes(self):
         conn = sqlite3.connect('redesocial.db')
         cursor = conn.cursor()
@@ -138,6 +144,7 @@ class Usuario():
 
         return cursor.fetchall()
 
+    #Envia mensagem para um usuário, registrando no banco.
     def enviarMensagem(self, id, mensagem):
         conn = sqlite3.connect('redesocial.db')
         cursor = conn.cursor()
@@ -148,6 +155,7 @@ class Usuario():
         conn.commit()
         conn.close()
 
+    #Lista mensagens enviadas e recebidas
     def listarMensagens(self):
         conn = sqlite3.connect('redesocial.db')
         cursor = conn.cursor()
@@ -157,6 +165,17 @@ class Usuario():
 
         return cursor.fetchall()
 
+    #Verifica se um determinado usuário com id passado por parâmetro é amigo
+    def isFriend(self, id):
+        friendList = self.listarAmigos()
+
+        for user in friendList:
+            if(user.id == id):
+                return True
+
+        return False
+
+    #Encontra lista de usuários que possuem determinado nome passado por parâmetro.
     @staticmethod
     def findUsersByName(nome):
         users = Usuario.listar()
@@ -168,6 +187,7 @@ class Usuario():
 
         return users2
 
+    #Encontra usuário que possui id passado por parâmtro
     @staticmethod
     def findUserById(id):
         users = Usuario.listar()
@@ -176,6 +196,7 @@ class Usuario():
                 return user
         return None
 
+    #Encontra usuário que possui email passado por parâmetro
     @staticmethod
     def findUserByEmail(email):
         users = Usuario.listar()
@@ -184,6 +205,7 @@ class Usuario():
                 return user
         return None
 
+    #Verifica email e senha
     @staticmethod
     def verificar_login(login, password):
         user = Usuario.findUserByEmail(login)
@@ -194,6 +216,7 @@ class Usuario():
             return True
         return False
 
+    #Verifica se determinado email passado por parâmetro é de algum usuário.
     @staticmethod
     def emailExists(email):
         conn = sqlite3.connect("redesocial.db")
