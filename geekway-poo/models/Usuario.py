@@ -80,6 +80,22 @@ class Usuario():
         else:
             return False
 
+    def aceitarAmizade(self, id):
+        conn = sqlite3.connect("redesocial.db")
+        cursor = conn.cursor()
+        cursor.execute("""
+            UPDATE tb_solicitacao_amizade
+            SET status = ? WHERE solicitante_id = ? and solicitado_id = ?;
+        """, ("ACEITA", id, self.id))
+
+        cursor.execute("""
+            INSERT INTO tb_amizade(usuario1_id, usuario2_id)
+            VALUES(?,?);
+        """, (id, self.id))
+
+        conn.commit()
+        conn.close()
+
     def solicitacaoAmizade(self, id):
         conn = sqlite3.connect('redesocial.db')
         cursor = conn.cursor()

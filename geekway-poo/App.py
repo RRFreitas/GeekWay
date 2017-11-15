@@ -48,11 +48,20 @@ def menuUsuario(usuario):
             for user in usuario.listarAmigos():
                 print(user.nome)
         elif(op == 3):
+
             for solicitacao in usuario.listarSolicitacoes():
-                print(Usuario.findUserById(solicitacao["solicitante_id"]).nome + " - " + solicitacao["status"])
+                if(not solicitacao[1] is None):
+                    print(Usuario.findUserById(solicitacao[1]).nome + " - " + solicitacao[3])
+
+                    if(solicitacao[3] == "PENDENTE"):
+                        op1 = input("Desenha aceitar esta solicitação? (s/n) ")
+
+                        if(op1.lower().startswith("s")):
+                            usuario.aceitarAmizade(solicitacao[1])
+                            print("\n\n\n\nAmizade aceita!")
         elif(op == 4):
             for user in usuario.listarAmigos():
-                print(user.id + " - " + user.nome)
+                print(str(user.id) + " - " + str(user.nome))
 
             id = int(input("Digite o id do amigo que deseja enviar mensagem: "))
             user = Usuario.findUserById(id)
@@ -64,13 +73,14 @@ def menuUsuario(usuario):
             msg = input("Digite a mensagem que deseja enviar: ")
 
             usuario.enviarMensagem(id, msg)
-            print("Mensagem privada enviada com sucesso!")
+            print("\n\n\n\nMensagem privada enviada com sucesso!")
 
         elif(op == 5):
             msgs = usuario.listarMensagens()
+            print("\n\n\n\n")
 
             for msg in msgs:
-                print(Usuario.findUserById(msg["destinatario_id"]).nome + " para " + Usuario.findUserById(msg["remetente_id"]).nome + ": " + msg["mensagem"])
+                print(Usuario.findUserById(msg[2]).nome + " para " + Usuario.findUserById(msg[1]).nome + ": " + msg[3])
 
 def menu():
     op = 100
