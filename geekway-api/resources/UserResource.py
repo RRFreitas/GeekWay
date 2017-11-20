@@ -11,6 +11,8 @@ class UserResource(Resource):
         user = Usuario.findUserById(id)
 
         if(user is None):
-            return "Usuário não encontrado.", 404
+            user = Usuario.verify_auth_token(id)
+            if(user is None):
+                return "Usuário não encontrado.", 404
 
         return user, 200

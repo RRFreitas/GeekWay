@@ -8,7 +8,7 @@ usuario_campos = {
     'id': fields.Integer,
     'nome': fields.String,
     'email': fields.String,
-    'data_nasc': fields.DateTime,
+    'data_nasc': fields.String,
     'profissao': fields.String,
     'genero': fields.String,
     'cidade': fields.String,
@@ -55,6 +55,7 @@ class Usuario():
         SELECT * FROM tb_usuario;
         """)
         for linha in cursor.fetchall():
+            id = linha[0]
             nome = linha[1]
             email = linha[2]
             senha = linha[3]
@@ -65,7 +66,7 @@ class Usuario():
             estado = linha[8]
             pais = linha[9]
 
-            usuario = Usuario(nome, email, senha, data_nasc, profissao, genero, cidade, estado, pais, [])
+            usuario = Usuario(nome, email, senha, data_nasc, profissao, genero, cidade, estado, pais, [], id)
             usuarios.append(usuario)
 
         conn.close()

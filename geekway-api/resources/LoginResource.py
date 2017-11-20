@@ -1,6 +1,6 @@
-from flask_restful import Resource
+from flask_restful import Resource, marshal_with
 from flask import request
-from models.Usuario import Usuario
+from models.Usuario import Usuario, usuario_campos
 
 class LoginResource(Resource):
 

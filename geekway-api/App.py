@@ -11,7 +11,7 @@ api_bp = Blueprint('api', __name__)
 api = Api(api_bp, prefix='/api')
 
 api.add_resource(LoginResource, '/login')
-api.add_resource(UserResource, '/user/<int:id>')
+api.add_resource(UserResource, '/user/<string:id>')
 
 app.register_blueprint(api_bp)
 

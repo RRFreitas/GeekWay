@@ -1,6 +1,10 @@
-<div ng-hide="userService.getToken() != null">
+<script>
+    verificarLogin();
+</script>
+
+<div ng-hide="user == null">
     
 <h3>Hello, {{user.nome}}</h3>
-<button>Sair</button>
+<button ng-click="sair()">Sair</button>
     
 </div>
