@@ -27,7 +27,7 @@ angular.module("app").factory("userService", function($cookies, $http, config) {
     };
     
     var _requestUser = function(id) {
-          return $http.get(_path + "/user/" + id);
+          return $http.get(_path + "/users/" + id);
     };
 
     return {

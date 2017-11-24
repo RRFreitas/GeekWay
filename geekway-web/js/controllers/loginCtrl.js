@@ -5,7 +5,7 @@ angular.module("app").controller("loginCtrl", function ($scope, loginService, us
     verificarLogin = function() {
         token = userService.getToken();
         
-        if(token != null) {
+        if(token != null  && userService.getUser() != null) {
             $state.go("home");
         }
     };
@@ -16,9 +16,8 @@ angular.module("app").controller("loginCtrl", function ($scope, loginService, us
                 
                 userService.requestUser(data["data"]).then(function (user, status) {
                     userService.storeUser(user["data"]);
+                    $state.go("home");
                 });
-            
-                $state.go("home");
             });
     };
     

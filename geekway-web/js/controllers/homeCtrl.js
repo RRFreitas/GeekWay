@@ -3,9 +3,7 @@ angular.module("app").controller("homeCtrl", function ($scope, userService, $sta
     $scope.verificarLogin = function() {
         token = userService.getToken();
         
-        console.log(token);
-        
-        if(token == null) {
+        if(token == null || userService.getUser() == null) {
             $state.go("login");
         }else {
             $scope.user = userService.getUser();
@@ -20,7 +18,5 @@ angular.module("app").controller("homeCtrl", function ($scope, userService, $sta
     }
     
     $scope.verificarLogin();
-    
-    console.log($scope.user);
 
 });
