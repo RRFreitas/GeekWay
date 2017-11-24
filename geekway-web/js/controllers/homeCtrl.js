@@ -1,4 +1,4 @@
-angular.module("app").controller("homeCtrl", function ($scope, userService, $state) {
+angular.module("app").controller("homeCtrl", function ($scope, userService, $state, $mdSidenav) {
     
     $scope.verificarLogin = function() {
         token = userService.getToken();

@@ -91,6 +91,29 @@ class Usuario():
         conn.commit()
         conn.close
 
+    # Lista todos os amigos
+    def listarAmigos(self):
+        conn = sqlite3.connect('redesocial.db')
+        cursor = conn.cursor()
+        cursor.execute("""
+            SELECT usuario1_id, usuario2_id FROM tb_amizade WHERE usuario1_id = ? or usuario2_id = ?
+        """, (self.id, self.id))
+
+        idAmigos = []
+
+        for users in cursor.fetchall():
+            if (users[0] == self.id):
+                idAmigos.append(users[1])
+            else:
+                idAmigos.append(users[0])
+
+        amigos = []
+
+        for id in idAmigos:
+            amigos.append(Usuario.findUserById(id))
+
+        return amigos
+
     @staticmethod
     def findUserById(id):
         users = Usuario.listar()

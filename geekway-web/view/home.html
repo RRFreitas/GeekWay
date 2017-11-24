@@ -1,6 +1,20 @@
 <div ng-hide="user == null">
+    <div class="main" flex layout="row" ng-controller="sideNavCtrl as sideNav">
+
+        <div layout="row" ng-include="'view/templates/sidenav.html'"></div>
     
-<h3>Hello, {{user.nome}}</h3>
-<button ng-click="sair()">Sair</button>
-    
+        <div flex layout="column">
+
+            <div ng-include="'view/templates/toolbar-home.html'"></div>
+
+            <md-content class="home-background" flex layout="column">
+                <div class="container-margin">
+                    <div ui-view></div>
+                </div>
+                <span flex></span>
+            </md-content>
+
+        </div>
+    </div>
+
 </div>
