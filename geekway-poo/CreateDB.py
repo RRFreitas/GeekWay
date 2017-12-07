@@ -1,13 +1,14 @@
-import sqlite3
+from database.ConfigDB import config
+import mysql.connector
 
 def criarBanco():
     try:
-        conn = sqlite3.connect("redesocial.db")
+        conn = mysql.connector.connect(**config) # Nome do BD.
         cursor = conn.cursor()
 
         cursor.execute("""
             CREATE TABLE tb_usuario(
-                id integer PRIMARY KEY AUTOINCREMENT,
+                id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
                 nome varchar(100) NOT NULL,
                 email varchar(50) NOT NULL UNIQUE,
                 senha varchar(20) NOT NULL,
@@ -22,8 +23,8 @@ def criarBanco():
 
         cursor.execute("""
             CREATE TABLE tb_postagem(
-                id integer PRIMARY KEY AUTOINCREMENT,
-                usuario_id integer,
+                id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+                usuario_id integer NOT NULL,
                 mensagem varchar(140),
                 privacidade varchar(20),
                 data_hora datetime,
@@ -55,7 +56,7 @@ def criarBanco():
 
         cursor.execute("""
         CREATE TABLE tb_mensagem_direta(
-                id integer PRIMARY KEY AUTOINCREMENT,
+                id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
                 remetente_id integer,
                 destinatario_id integer,
                 mensagem text,
@@ -68,7 +69,7 @@ def criarBanco():
 
         cursor.execute("""
             CREATE TABLE tb_solicitacao_amizade(
-                id integer PRIMARY KEY AUTOINCREMENT,
+                id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
                 solicitante_id integer,
                 solicitado_id integer,
                 status varchar(8),
@@ -80,7 +81,7 @@ def criarBanco():
 
         cursor.execute("""
             CREATE TABLE tb_notificacoes(
-                id integer PRIMARY KEY AUTOINCREMENT,
+                id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
                 usuario_id integer,
                 mensagem text,
                 FOREIGN KEY(usuario_id) REFERENCES tb_usuario(id)
@@ -89,7 +90,7 @@ def criarBanco():
 
         cursor.execute("""
             CREATE TABLE tb_amizade(
-                id integer PRIMARY KEY AUTOINCREMENT,
+                id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
                 usuario1_id integer,
                 usuario2_id integer,
                 data_inicio date,
@@ -100,7 +101,7 @@ def criarBanco():
 
         cursor.execute("""
             CREATE TABLE tb_grupo(
-                id integer PRIMARY KEY AUTOINCREMENT,
+                id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
                 id_criador integer,
                 nome varchar(50),
                 data_criacao date,
@@ -120,4 +121,4 @@ def criarBanco():
             );
         """)
     except:
-        print("Banco já criado!")
+        print("Tabela já criada!")

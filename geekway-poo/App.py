@@ -1,5 +1,8 @@
 from CreateDB import criarBanco
 from models.Usuario import Usuario
+from database.UsuarioDAO import UsuarioDAO
+
+usuarioDAO = UsuarioDAO()
 
 def menuUsuario(usuario):
     limparTela()
@@ -10,11 +13,12 @@ def menuUsuario(usuario):
     while op > 0:
         try:
             op = int(input("Digite uma opção: \n"
-                           "1 - Adicionar amigo\n"
-                           "2 - Listar amigos\n"
-                           "3 - Solicitações de amizade\n"
-                           "4 - Enviar mensagem para amigo\n"
-                           "5 - Listar mensagens\n"
+                           "1 - Ver meu perfil\n"
+                           "2 - Adicionar amigo\n"
+                           "3 - Listar amigos\n"
+                           "4 - Solicitações de amizade\n"
+                           "5 - Enviar mensagem para amigo\n"
+                           "6 - Listar mensagens\n"
                            "0 - Logout\n"))
         except:
             print("Essa não é uma opção válida...\n\n\n")
@@ -24,74 +28,98 @@ def menuUsuario(usuario):
         if(op == 0):
             break
 
+        elif(op == 1):
+            limparTela()
+
+            print("===========================")
+            print("Nome:", usuario.nome)
+            print("Data de nascimento:", usuario.data_nasc)
+            print("Profissão:", usuario.profissao)
+            print("Gênero:", usuario.genero)
+            print("Cidade:", usuario.cidade)
+            print("Estado:", usuario.estado)
+            print("País:", usuario.pais)
+            print("===========================\n")
+
         #Opção de adicionar amigo, pede o nome da pessoa, procura todos os usuários com esse nome e lista com seu respectivo id,
         #verifica se nenhum usuário foi encontrado
         #se só 1 usuário for encontrado, ele já enviar a solicitação
         #se mais de 1 usuário for encontrado, pede para especificar o id do usuário e em seguida envia solicitação
-        elif(op == 1):
+        elif(op == 2):
             nome = input("Digite o nome da pessoa: ")
-            users = Usuario.findUsersByName(nome)
+            users = usuarioDAO.procurarUsuariosPorNome(nome)
 
             if len(users) == 0:
                 limparTela()
                 print("Nenhum usuário com esse nome foi encontrado.")
                 continue
             elif len(users) == 1:
-                if(usuario.isFriend(users[0].id)):
+                if(usuarioDAO.isFriend(usuario.id, users[0].id)):
                     limparTela()
                     print(users[0].nome + " já é seu amigo!")
                     continue
 
-                usuario.solicitacaoAmizade(users[0].id)
                 limparTela()
-                print("Solicitação de amizade enviada!\n\n")
+
+                if(usuarioDAO.solicitacaoAmizade(usuario.id, users[0].id)):
+                    print("Solicitação de amizade enviada!\n\n")
+                else:
+                    print("Houve um problema... Não já existe uma solicitação pendente?\n\n")
             else:
                 for user in users:
                     print(user.id + " - " + user.nome)
 
-                id = int(input("Digite o ID da pessoa que eseja adicionar: "))
+                id = int(input("Digite o ID da pessoa que deseja adicionar: "))
 
-                if(Usuario.findUserById(id) is None):
+                if(usuarioDAO.procurarUsuarioPorId(id) is None):
                     print("Usuário com esse ID não encontrado.\n\n")
                     continue
                 else:
                     if (usuario.isFriend(id)):
-                        print(Usuario.findUserById(id).nome + " já é seu amigo!")
+                        print(usuarioDAO.procurarUsuarioPorId(id).nome + " já é seu amigo!")
                         continue
-                    usuario.solicitacaoAmizade(id)
-                    print("Solicitação de amizade enviada!\n\n")
+
+                    if(usuario.solicitacaoAmizade(id)):
+                        print("Solicitação de amizade enviada!\n\n")
+                    else:
+                        print("Houve um problema... Não já existe uma solicitação pendente?\n\n")
 
         #Opção que lista todos os amigos do usuário
-        elif(op == 2):
+        elif(op == 3):
             limparTela()
-            for user in usuario.listarAmigos():
+            for user in usuarioDAO.listarAmigos(usuario.id):
                 print(user.nome)
 
         #Opção que lista todas as solicitações de amizade pendentes
-        elif(op == 3):
-            if(len(usuario.listarSolicitacoes()) == 0):
+        elif(op == 4):
+            if(len(usuarioDAO.listarSolicitacoes(usuario.id)) == 0):
+                limparTela()
                 print("Nenhuma solicitação pendente!")
 
-            for solicitacao in usuario.listarSolicitacoes():
+            for solicitacao in usuarioDAO.listarSolicitacoes(usuario.id):
                 if(not solicitacao[1] is None):
-                    print(Usuario.findUserById(solicitacao[1]).nome + " - " + solicitacao[3])
+                    print(usuarioDAO.procurarUsuarioPorId(solicitacao[1]).nome + " - " + solicitacao[3])
 
                     if(solicitacao[3] == "PENDENTE"):
                         op1 = input("Desenha aceitar esta solicitação? (s/n) ")
 
                         if(op1.lower().startswith("s")):
-                            usuario.aceitarAmizade(solicitacao[1])
+                            usuarioDAO.aceitarAmizade(solicitacao[1], usuario.id)
                             limparTela()
                             print("Amizade aceita!")
+                        elif(op1.lower().startswith("n")):
+                            usuarioDAO.negarAmizade(solicitacao[1], usuario.id)
+                            limparTela()
+                            print("Amizade negada!")
 
         #Lista os amigos com seus respectivos ids, e em seguida pede o id do usuário a enviar a mensagem, e depois a mensagem
         #Obs: No momento, o usuário pode enviar mensagem para um id que não é seu amigo. (A consertar)
-        elif(op == 4):
-            for user in usuario.listarAmigos():
+        elif(op == 5):
+            for user in usuarioDAO.listarAmigos(usuario.id):
                 print(str(user.id) + " - " + str(user.nome))
 
             id = int(input("Digite o id do amigo que deseja enviar mensagem: "))
-            user = Usuario.findUserById(id)
+            user = usuarioDAO.procurarUsuarioPorId(id)
 
             if user is None:
                 print("Usuário inválido")
@@ -99,17 +127,17 @@ def menuUsuario(usuario):
 
             msg = input("Digite a mensagem que deseja enviar: ")
 
-            usuario.enviarMensagem(id, msg)
+            usuarioDAO.enviarMensagem(usuario.id, id, msg)
             limparTela()
             print("Mensagem privada enviada com sucesso!")
 
         #Lista todas as mensagens enviadas e recebidas.
-        elif(op == 5):
-            msgs = usuario.listarMensagens()
+        elif(op == 6):
+            msgs = usuarioDAO.listarMensagens(usuario.id)
             limparTela()
 
             for msg in msgs:
-                print(Usuario.findUserById(msg[2]).nome + " para " + Usuario.findUserById(msg[1]).nome + ": " + msg[3])
+                print(usuarioDAO.procurarUsuarioPorId(msg[2]).nome + " para " + usuarioDAO.procurarUsuarioPorId(msg[1]).nome + ": " + msg[3])
 
 def limparTela():
     print("\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n")
@@ -139,11 +167,11 @@ def menu():
             email = input("Digite seu email: ")
             senha = input("Digite sua senha: ")
 
-            if(Usuario.verificar_login(email, senha)):
+            if(usuarioDAO.verificar_login(email, senha)):
                 limparTela()
                 print("Logado com sucesso!\n\n\n")
 
-                usuario = Usuario.findUserByEmail(email)
+                usuario = usuarioDAO.procurarUsuarioPorEmail(email)
                 menuUsuario(usuario)
             else:
                 limparTela()
@@ -159,7 +187,7 @@ def menu():
             while True:
                 email = input("Digite seu email: ")
 
-                if(Usuario.emailExists(email)):
+                if(usuarioDAO.emailExists(email)):
                     print("Este email já existe, cadastre outro.\n")
                     continue
                 else:
@@ -170,9 +198,10 @@ def menu():
 
             try:
                 user = Usuario(nome, email, senha)
-                user.inserir()
+                usuarioDAO.inserirUsuario(user)
             except:
-                print("Erro!")
+                limparTela()
+                print("Oops! Houve algum problema... Talvez você tenha passado dos limites :P")
                 continue
 
             limparTela()

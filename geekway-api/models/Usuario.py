@@ -1,6 +1,6 @@
-import sqlite3
+import psycopg2
+from common.config import *
 from flask_restful import fields
-import base64
 from itsdangerous import (TimedJSONWebSignatureSerializer
 as Serializer, BadSignature, SignatureExpired)
 
@@ -36,24 +36,28 @@ class Usuario():
         self.token = token
 
     def inserir(self):
-        conn = sqlite3.connect('redesocial.db')
+        conn = psycopg2.connect("dbname=%s user=%s password=%s" % (DB_NAME, DB_USER, DB_PASSWORD))
         cursor = conn.cursor()
         cursor.execute("""
-            INSERT INTO tb_usuario (nome, email, senha, data_nasc, profissao, genero, cidade, estado, pais)
-            VALUES (?,?,?,?,?,?,?,?,?)
-            """, (self.nome, self.email, self.senha, self.data_nasc, self.profissao, self.genero, self.cidade, self.estado, self.pais))
+               INSERT INTO tb_usuario (nome, email, senha, data_nasc, profissao, genero, cidade, estado, pais)
+               VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)
+               """, (
+        self.nome, self.email, self.senha, self.data_nasc, self.profissao, self.genero, self.cidade, self.estado,
+        self.pais))
 
         conn.commit()
         conn.close()
 
+        # Lista todos os usuários
+
     @staticmethod
     def listar():
         usuarios = []
-        conn = sqlite3.connect('redesocial.db')
+        conn = psycopg2.connect("dbname=%s user=%s password=%s" % (DB_NAME, DB_USER, DB_PASSWORD))
         cursor = conn.cursor()
         cursor.execute("""
-        SELECT * FROM tb_usuario;
-        """)
+           SELECT * FROM tb_usuario;
+           """)
         for linha in cursor.fetchall():
             id = linha[0]
             nome = linha[1]
@@ -74,29 +78,29 @@ class Usuario():
         return usuarios
 
     def deletar(self, id):
-        conn = sqlite3.connect('redesocial.db')
+        conn = psycopg2.connect("dbname=%s user=%s password=%s" % (DB_NAME, DB_USER, DB_PASSWORD))
         cursor = conn.cursor()
-        cursor.execute("DELETE FROM tb_usuario WHERE id = ?", (id,))
+        cursor.execute("DELETE FROM tb_usuario WHERE id = %s", (id,))
         conn.commit()
         conn.close()
 
     def atualizar(self, id, nome, email, senha, data_nasc, profissao, genero, cidade, estado, pais):
-        conn = sqlite3.connect('redesocial.db')
+        conn = psycopg2.connect("dbname=%s user=%s password=%s" % (DB_NAME, DB_USER, DB_PASSWORD))
         cursor = conn.cursor()
         cursor.execute("""
-            UPDATE tb_usuario
-            SET nome = ?, email = ?, senha = ?, data_nasc = ?, profissao = ?, genero = ?, cidade = ?, estado = ?, pais = ?
-            WHERE id = ?;
-        """, (nome, email, senha, data_nasc, profissao, genero, cidade, estado, pais, id))
+               UPDATE tb_usuario
+               SET nome = %s, email = %s, senha = %s, data_nasc = %s, profissao = %s, genero = %s, cidade = %s, estado = %s, pais = %s
+               WHERE id = %s;
+           """, (nome, email, senha, data_nasc, profissao, genero, cidade, estado, pais, id))
         conn.commit()
         conn.close
 
-    # Lista todos os amigos
+    # Lista toos os amigos
     def listarAmigos(self):
-        conn = sqlite3.connect('redesocial.db')
+        conn = psycopg2.connect("dbname=%s user=%s password=%s" % (DB_NAME, DB_USER, DB_PASSWORD))
         cursor = conn.cursor()
         cursor.execute("""
-            SELECT usuario1_id, usuario2_id FROM tb_amizade WHERE usuario1_id = ? or usuario2_id = ?
+            SELECT usuario1_id, usuario2_id FROM tb_amizade WHERE usuario1_id = %s or usuario2_id = %s
         """, (self.id, self.id))
 
         idAmigos = []
@@ -111,6 +115,8 @@ class Usuario():
 
         for id in idAmigos:
             amigos.append(Usuario.findUserById(id))
+
+        conn.close()
 
         return amigos
 
