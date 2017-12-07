@@ -10,7 +10,7 @@ angular.module("app").controller("registerCtrl", function($scope, registerServic
                         $mdToast.simple()
                         .textContent("Registrado com sucesso.")
                         .highlightClass('md-primary')
-                        .position('top right')
+                        .position('top left')
                         .action('OK')
                         .hideDelay(6000)
                     );
@@ -21,7 +21,7 @@ angular.module("app").controller("registerCtrl", function($scope, registerServic
                         $mdToast.simple()
                         .textContent(data["data"])
                         .highlightClass('md-warn')
-                        .position('top right')
+                        .position('top left')
                         .action('OK')
                         .hideDelay(6000)
                     );
