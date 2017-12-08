@@ -1,11 +1,13 @@
-import mysql.connector
 from models.Postagem import Postagem
-from database.ConfigDB import connectar
+from database.DAO import DAO
+from database.UsuarioDAO import UsuarioDAO
 
-class PostagemDAO():
+class PostagemDAO(DAO):
 
-    def inserirPostagem(postagem: Postagem):
-        idPostagem = 0
+    def __init__(self):
+        super(PostagemDAO, self).__init__()
+
+    def insert(self, postagem: Postagem):
         # Script de Inserção.
         query = "INSERT INTO tb_postagem(usuario_id, mensagem, privacidade, dataHora, curtidas) " \
                 "VALUES(%s, %s, %s, %s, %s)"
@@ -13,58 +15,59 @@ class PostagemDAO():
         values = (postagem.usuario.id, postagem.mensagem, postagem.privacidade, postagem.data_Hora, postagem.curtidas )
 
         try:
-            # Conexão com a base de dados.
-            conn = connectar()
-            # Preparando o cursor para a execução da consulta.
-            cursor = conn.cursor()
-            cursor.execute(query, values)
+            return super(PostagemDAO, self).insert(query, values)
+        except Exception as err:
+            print("Erro no banco de dados!")
+            print(err)
+            return
 
-            if cursor.lastrowid:
-                idPostagem = cursor.lastrowid
-            # Finalizando a persistência dos dados.
-            conn.commit()
-        except mysql.connector.Error as error:
-            print(error)
-        finally:
-            cursor.close()
-            conn.close()
-        # Retornar id da rede social.
-        return idPostagem
+    def delete(self, id):
+        query = "DELETE FROM tb_postagem WHERE id = %s"
+        values = (id,)
 
-    def deletar(id):
-        conn = connectar()
-        cursor = conn.cursor()
-        cursor.execute("DELETE FROM tb_postagem WHERE id = ?", (id,))
-        conn.commit()
-        conn.close()
+        try:
+            self.execute(query, values)
+            return True
+        except Exception as err:
+            print(err)
+            return False
 
-    def atualizar(self, id, mensagem, privacidade, dataHora, curtidas):
-        conn = connectar()
-        cursor = conn.cursor()
-        cursor.execute("""
-                  UPDATE postagem
-                  SET mensagem = ?, privacidade = ?, dataHora = ?, curtidas = ?
-                  WHERE id = ?;
-              """, (mensagem, privacidade, dataHora, curtidas, id))
-        conn.commit()
-        conn.close
+    def update(self, id, mensagem, privacidade, dataHora, curtidas):
+        query = "UPDATE postagem " \
+                "SET mensagem = %s, privacidade = %s, dataHora = %s, curtidas = %s" \
+                "WHERE id = %s;"
+        values = (mensagem, privacidade, dataHora, curtidas, id)
+
+        try:
+            self.execute(query, values)
+            return True
+        except Exception as err:
+            print(err)
+            return False
+
+    def procurarPostagemPorId(self, id):
+        posts = self.listar()
+        for post in posts:
+            if post.id == id:
+                return post
+        return None
 
     def listar(self):
+        query = "SELECT * FROM tb_postagem;"
+        result = self.get_rows(query)
+
+        usuarioDAO = UsuarioDAO()
+
         postagens = []
-        conn = connectar()
-        cursor = conn.cursor()
-        cursor.execute("""
-        SELECT * FROM tb_postagem;
-        """)
-        for linha in cursor.fetchall():
-            mensagem = linha[1]
-            privacidade = linha[2]
-            dataHora = linha[3]
-            curtidas = linha[4]
 
-            postagem = Postagem(mensagem, privacidade, dataHora, curtidas)
+        for row in result:
+            usuario = usuarioDAO.procurarUsuarioPorId(row[1])
+            mensagem = row[2]
+            privacidade = row[3]
+            dataHora = row[4]
+            curtidas = row[5]
+
+            postagem = Postagem(usuario, mensagem, privacidade, dataHora, curtidas)
             postagens.append(postagem)
-
-        conn.close()
 
         return postagens

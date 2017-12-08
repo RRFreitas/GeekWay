@@ -1,69 +1,64 @@
-import mysql.connector
 from models.Grupo import Grupo
-from database.ConfigDB import connectar
+from database.DAO import DAO
+from database.UsuarioDAO import UsuarioDAO
 
-class GrupoDAO():
+class GrupoDAO(DAO):
 
-    def inserirGrupo(grupo: Grupo):
-        idGrupo= 0
+    def __init__(self):
+        super(GrupoDAO, self).__init__()
+
+    def insert(self, grupo: Grupo):
         # Script de Inserção.
-        query = "INSERT INTO tb_grupo(criador_id, data_criacao, descricao) " \
-                "VALUES(%s, %s, %s)"
+        query = "INSERT INTO tb_grupo(criador_id, nome, data_criacao, descricao) " \
+                "VALUES(%s, %s, %s, %s)"
         # Valores.
-        values = (grupo.criador.id, grupo.dataCriacao, grupo.descricao)
+        values = (grupo.criador.id, grupo.nome, grupo.dataCriacao, grupo.descricao)
 
         try:
-            # Conexão com a base de dados.
-            conn = connectar()
-            # Preparando o cursor para a execução da consulta.
-            cursor = conn.cursor()
-            cursor.execute(query, values)
+            return super(GrupoDAO, self).insert(query, values)
+        except Exception as err:
+            print("Erro no banco de dados!")
+            print(err)
+            return
 
-            if cursor.lastrowid:
-                idGrupo = cursor.lastrowid
-            # Finalizando a persistência dos dados.
-            conn.commit()
-        except mysql.connector.Error as error:
-            print(error)
-        finally:
-            cursor.close()
-            conn.close()
-        # Retornar id da rede social.
-        return idGrupo
+    def delete(self, id):
+        query = "DELETE FROM tb_grupo WHERE id = %s"
+        values = (id,)
 
-    def deletar(self, id):
-        conn = connectar()
-        cursor = conn.cursor()
-        cursor.execute("DELETE FROM tb_grupo WHERE id = ?", (id,))
-        conn.commit()
-        conn.close()
+        try:
+            self.execute(query, values)
+            return True
+        except Exception as err:
+            print(err)
+            return False
 
-    def atualizar(self, criador, dataCriacao, descricao):
-        conn = connectar()
-        cursor = conn.cursor()
-        cursor.execute("""
-                          UPDATE tb_grupo
-                          SET criador = ?, dataCriacao = ?, descricao = ?
-                          WHERE id = ?;
-                      """, (criador, dataCriacao, descricao, id))
-        conn.commit()
-        conn.close
+    def update(self, criador, nome, dataCriacao, descricao):
+        query = "UPDATE tb_grupo " \
+                "SET criador = %s, nome = %s, data_criacao = %s, descricao = %s " \
+                "WHERE id = %s;"
+        values = (criador, nome, dataCriacao, descricao, id)
+        try:
+            self.execute(query, values)
+            return True
+        except Exception as err:
+            print(err)
+            return False
 
     def listar(self):
+        query = "SELECT * FROM tb_grupo;"
+        result = self.get_rows(query)
+
+        usuarioDAO = UsuarioDAO()
+
         grupos = []
-        conn = connectar()
-        cursor = conn.cursor()
-        cursor.execute("""
-        SELECT * FROM tb_grupo;
-        """)
-        for linha in cursor.fetchall():
-            criador = linha[1]
-            dataCriacao = linha[2]
-            descricao  = linha[3]
 
-            grupo = Grupo(criador, dataCriacao, descricao)
+        for row in result:
+            criador = usuarioDAO.procurarUsuarioPorId(row[1])
+            nome = row[2]
+            dataCriacao = row[3]
+            descricao  = row[4]
+
+            grupo = Grupo(criador, nome, dataCriacao, descricao)
             grupos.append(grupo)
-
-        conn.close()
 
         return grupos

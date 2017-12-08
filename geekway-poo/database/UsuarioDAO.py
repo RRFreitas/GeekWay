@@ -1,12 +1,12 @@
-import mysql.connector
 from models.Usuario import Usuario
-from database.ConfigDB import connectar
-import psycopg2
+from database.DAO import DAO
 
-class UsuarioDAO():
+class UsuarioDAO(DAO):
 
-    def inserirUsuario(self, usuario: Usuario):
-        idUsuario = 0
+    def __init__(self):
+        super(UsuarioDAO, self).__init__()
+
+    def insert(self, usuario: Usuario):
         # Script de Inserção.
         query = "INSERT INTO tb_usuario(nome, email, senha, data_nasc, profissao, genero, cidade, estado, pais) " \
                 "VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s)"
@@ -14,176 +14,142 @@ class UsuarioDAO():
         values = (usuario.nome, usuario.email, usuario.senha, usuario.data_nasc, usuario.profissao, usuario.genero, usuario.cidade, usuario.estado, usuario.pais)
 
         try:
-            # Conexão com a base de dados.
-            conn = connectar()
-            # Preparando o cursor para a execução da consulta.
-            cursor = conn.cursor()
-            cursor.execute(query, values)
+            return super(UsuarioDAO, self).insert(query, values)
+        except Exception as err:
+            print("Erro no banco de dados!")
+            print(err)
+            return
 
-            if cursor.lastrowid:
-                idUsuario = cursor.lastrowid
-            # Finalizando a persistência dos dados.
-            conn.commit()
-        except mysql.connector.Error as error:
-            print(error)
-        finally:
-            cursor.close()
-            conn.close()
-        # Retornar id da rede social.
-        return idUsuario
+    def delete(self, id):
+        try:
+            query = "DELETE FROM tb_usuario WHERE id = %s"
+            values = (id,)
+            self.execute(query, values)
+            return True
+        except Exception as err:
+            print(err)
+            return False
 
-    def deletarUsuario(self, id):
-        conn = connectar()
-        cursor = conn.cursor()
-        cursor.execute("DELETE FROM tb_usuario WHERE id = ?", (id,))
-        conn.commit()
-        conn.close()
+    def update(self, id, nome, email, senha, data_nasc, profissao, genero, cidade, estado, pais):
+        try:
+            query = "UPDATE tb_usuario " \
+                    "SET nome = %s, email = %s, senha = %s, data_nasc = %s, profissao = %s, genero = %s, cidade = %s, estado = %s, pais = %s " \
+                    "WHERE id = %s;"
+            values = (nome, email, senha, data_nasc, profissao, genero, cidade, estado, pais, id)
+            self.execute(query, values)
+        except Exception as err:
+            print(err)
+            return False
 
-    def atualizarUsuario(self, id, nome, email, senha, data_nasc, profissao, genero, cidade, estado, pais):
-        conn = connectar()
-        cursor = conn.cursor()
-        cursor.execute("""
-            UPDATE tb_usuario
-            SET nome = ?, email = ?, senha = ?, data_nasc = ?, profissao = ?, genero = ?, cidade = ?, estado = ?, pais = ?
-            WHERE id = ?;
-        """, (nome, email, senha, data_nasc, profissao, genero, cidade, estado, pais, id))
-        conn.commit()
-        conn.close
+    def listar(self):
+        query = "SELECT * FROM tb_usuario;"
+        results = self.get_rows(query)
 
-    def listarUsuarios(self):
         usuarios = []
-        conn = connectar()
-        cursor = conn.cursor()
-        cursor.execute("""
-        SELECT * FROM tb_usuario;
-        """)
-        for linha in cursor.fetchall():
-            id = linha[0]
-            nome = linha[1]
-            email = linha[2]
-            senha = linha[3]
-            data_nasc = linha[4]
-            profissao = linha[5]
-            genero = linha[6]
-            cidade = linha[7]
-            estado = linha[8]
-            pais = linha[9]
+
+        for row in results:
+            id = row[0]
+            nome = row[1]
+            email = row[2]
+            senha = row[3]
+            data_nasc = row[4]
+            profissao = row[5]
+            genero = row[6]
+            cidade = row[7]
+            estado = row[8]
+            pais = row[9]
 
             usuario = Usuario(nome, email, senha, data_nasc, profissao, genero, cidade, estado, pais, [], id)
             usuarios.append(usuario)
 
-        conn.close()
-
         return usuarios
 
     def aceitarAmizade(self, idSolicitante, idSolicitado):
-        conn = connectar()
-        cursor = conn.cursor()
-        cursor.execute("""
-            UPDATE tb_solicitacao_amizade
-            SET status = %s WHERE solicitante_id = %s and solicitado_id = %s;
-        """, ("ACEITA", idSolicitante, idSolicitado))
+        try:
+            query = "UPDATE tb_solicitacao_amizade " \
+                    "SET status = %s WHERE solicitante_id = %s and solicitado_id = %s;"
+            values = ("ACEITA", idSolicitante, idSolicitado)
+            self.execute(query, values)
 
-        cursor.execute("""
-            INSERT INTO tb_amizade(usuario1_id, usuario2_id)
-            VALUES(%s,%s);
-        """, (idSolicitante, idSolicitado))
+            query = "INSERT INTO tb_amizade(usuario1_id, usuario2_id) " \
+                    "VALUES(%s,%s);"
+            values = (idSolicitante, idSolicitado)
+            self.execute(query, values)
 
-        conn.commit()
-        conn.close()
+            return True
+        except:
+            return False
 
     def negarAmizade(self, idSolicitante, idSolicitado):
-        conn = connectar()
-        cursor = conn.cursor()
-        cursor.execute("""
-            DELETE FROM tb_solicitacao_amizade
-            WHERE solicitante_id = %s and solicitado_id = %s;
-        """, (idSolicitante, idSolicitado))
+        try:
+            query = "DELETE FROM tb_solicitacao_amizade " \
+                    "WHERE solicitante_id = %s and solicitado_id = %s;"
+            values = (idSolicitante, idSolicitado)
+            self.execute(query, values)
 
-        conn.commit()
-        conn.close()
+            return True
+        except:
+            return False
 
     def solicitacaoAmizade(self, idSolicitante, idSolicitado):
-        conn = connectar()
-        cursor = conn.cursor()
+        query = "SELECT status FROM tb_solicitacao_amizade WHERE (solicitante_id = %s and solicitado_id = %s) or (solicitado_id = %s and solicitante_id = %s)"
+        values = (idSolicitante, idSolicitado, idSolicitante, idSolicitado)
 
-        cursor.execute("""
-            SELECT status FROM tb_solicitacao_amizade WHERE (solicitante_id = %s and solicitado_id = %s) or (solicitado_id = %s and solicitante_id = %s)
-        """, (idSolicitante, idSolicitado, idSolicitante, idSolicitado))
-
-        solicitacao = cursor.fetchone()
+        solicitacao = self.get_row(query, values)
 
         if(not(solicitacao is None) and len(solicitacao) > 0):
             if(solicitacao[0] == "PENDENTE"):
-                conn.close()
                 return False
 
-        cursor.execute("""
-            INSERT INTO tb_solicitacao_amizade (solicitante_id, solicitado_id, status)
-            VALUES(%s,%s,%s)
-        """, (idSolicitante, idSolicitado, "PENDENTE"))
-
-        conn.commit()
-        conn.close()
+        query = "INSERT INTO tb_solicitacao_amizade (solicitante_id, solicitado_id, status) " \
+                "VALUES(%s,%s,%s)"
+        values = (idSolicitante, idSolicitado, "PENDENTE")
+        self.execute(query, values)
         return True
 
     def listarAmigos(self, id):
-        conn = connectar()
-        cursor = conn.cursor()
-        cursor.execute("""
-            SELECT usuario1_id, usuario2_id FROM tb_amizade WHERE usuario1_id = %s or usuario2_id = %s
-        """, (id, id))
+        query = "SELECT usuario1_id, usuario2_id FROM tb_amizade WHERE usuario1_id = %s or usuario2_id = %s"
+        values = (id, id)
+        result = self.get_rows(query, values)
 
         idAmigos = []
 
-        for users in cursor.fetchall():
-            if(users[0] == id):
-                idAmigos.append(users[1])
+        for user in result:
+            if(user[0] == id):
+                idAmigos.append(user[1])
             else:
-                idAmigos.append(users[0])
+                idAmigos.append(user[0])
 
         amigos = []
 
         for ida in idAmigos:
             amigos.append(self.procurarUsuarioPorId(ida))
 
-        conn.close()
-
         return amigos
 
     def listarSolicitacoes(self, id):
-        conn = connectar()
-        cursor = conn.cursor()
-        cursor.execute("""
-            SELECT * FROM tb_solicitacao_amizade WHERE solicitado_id = %s
-        """, (id,))
-
-        solicitacoes = cursor.fetchall()
-
-        conn.close()
+        query = "SELECT * FROM tb_solicitacao_amizade WHERE solicitado_id = %s"
+        values = (id,)
+        solicitacoes = self.get_rows(query, values)
 
         return solicitacoes
 
     def enviarMensagem(self, idRemetente, idDestinatario, mensagem):
-        conn = connectar()
-        cursor = conn.cursor()
-        cursor.execute("""
-            INSERT INTO tb_mensagem_direta (remetente_id, destinatario_id, mensagem)
-            VALUES (%s,%s,%s)
-        """, (idRemetente, idDestinatario, mensagem))
-        conn.commit()
-        conn.close()
+        try:
+            query = "INSERT INTO tb_mensagem_direta (remetente_id, destinatario_id, mensagem) " \
+                    "VALUES (%s,%s,%s)"
+            values = (idRemetente, idDestinatario, mensagem)
+            self.execute(query, values)
+
+            return True
+        except:
+            return False
 
     def listarMensagens(self, id):
-        conn = connectar()
-        cursor = conn.cursor()
-        cursor.execute("""
-                    SELECT * FROM tb_mensagem_direta WHERE remetente_id = %s or destinatario_id = %s ORDER BY id
-                """, (id, id))
+        query = "SELECT * FROM tb_mensagem_direta WHERE remetente_id = %s or destinatario_id = %s ORDER BY id"
+        values = (id, id)
+        mensagens = self.get_rows(query, values)
 
-        mensagens = cursor.fetchall()
-
-        conn.close()
         return mensagens
 
     def isFriend(self, id, idFriend):
@@ -196,7 +162,7 @@ class UsuarioDAO():
         return False
 
     def procurarUsuariosPorNome(self, nome):
-        users = self.listarUsuarios()
+        users = self.listar()
         users2 = []
 
         for user in users:
@@ -206,14 +172,14 @@ class UsuarioDAO():
         return users2
 
     def procurarUsuarioPorId(self, id):
-        users = self.listarUsuarios()
+        users = self.listar()
         for user in users:
             if user.id == id:
                 return user
         return None
 
     def procurarUsuarioPorEmail(self, email):
-        users = self.listarUsuarios()
+        users = self.listar()
         for user in users:
             if user.email == email:
                 return user
@@ -229,16 +195,10 @@ class UsuarioDAO():
         return False
 
     def emailExists(self, email):
-        conn = connectar()
-        cursor = conn.cursor()
+        query = "SELECT email FROM tb_usuario WHERE email = %s"
+        values = (email,)
 
-        cursor.execute("""
-               SELECT email FROM tb_usuario WHERE email = %s
-           """, (email,))
-
-        if (cursor.fetchone() is None):
-            conn.close()
+        if (self.get_row(query, values) is None):
             return False
         else:
-            conn.close()
             return True

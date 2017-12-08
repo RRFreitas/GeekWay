@@ -1,69 +1,68 @@
-import mysql.connector
 from models.Comentario import Comentario
-from database.ConfigDB import connectar
+from database.DAO import DAO
+from database.UsuarioDAO import UsuarioDAO
+from database.PostagemDAO import PostagemDAO
 
-class ComentarioDAO():
+class ComentarioDAO(DAO):
 
-    def inserirComentario(comentario: Comentario):
-        idComentario = 0
+    def __init__(self):
+        super(ComentarioDAO, self).__init__()
+
+    def insert(self, comentario: Comentario):
         # Script de Inserção.
-        query = "INSERT INTO tb_comentario(usuario_id, postagem_id, mensagem_id, data_hora, curtidas) " \
+        query = "INSERT INTO tb_comentario_postagem(usuario_id, postagem_id, mensagem_id, data_hora, curtidas) " \
                 "VALUES(%s, %s, %s, %s, %s)"
         # Valores.
         values = (comentario.usuario.id, comentario.postagem.id, comentario.mensagem.id, comentario.dataHora, comentario.curtidas)
 
         try:
-            # Conexão com a base de dados.
-            conn = connectar()
-            # Preparando o cursor para a execução da consulta.
-            cursor = conn.cursor()
-            cursor.execute(query, values)
+            return super(ComentarioDAO, self).insert(query, values)
+        except Exception as err:
+            print("Erro no banco de dados!")
+            print(err)
+            return
 
-            if cursor.lastrowid:
-                idComentario = cursor.lastrowid
-            # Finalizando a persistência dos dados.
-            conn.commit()
-        except mysql.connector.Error as error:
-            print(error)
-        finally:
-            cursor.close()
-            conn.close()
-        # Retornar id da rede social.
-        return idComentario
+    def delete(self, id):
+        query = "DELETE FROM tb_comentario_postagem WHERE id = %s"
+        values = (id,)
 
-    def deletar(self, id):
-        conn = connectar()
-        cursor = conn.cursor()
-        cursor.execute("DELETE FROM tb_comentario WHERE id = ?", (id,))
-        conn.commit()
-        conn.close()
+        try:
+            self.execute(query, values)
+            return True
+        except Exception as err:
+            print(err)
+            return False
 
-    def atualizar(self, id, mensagem, dataHora, curtidas):
-        conn = connectar()
-        cursor = conn.cursor()
-        cursor.execute("""
-                          UPDATE tb_comentario
-                          SET mensagem = ?, dataHora = ?, curtidas = ?
-                          WHERE id = ?;
-                      """, (mensagem, dataHora, curtidas, id))
-        conn.commit()
-        conn.close
+    def update(self, id, mensagem, dataHora, curtidas):
+        query = "UPDATE tb_comentario_postagem " \
+                "SET mensagem = %s, data_hora = %s, curtidas = %s" \
+                "WHERE id = %s;"
+        values = (mensagem, dataHora, curtidas, id)
+
+        try:
+            self.execute(query, values)
+            return True
+        except Exception as err:
+            print(err)
+            return False
 
     def listar(self):
+        query = "SELECT * FROM tb_comentario_postagem;"
+        result = self.get_rows(query)
+
+        usuarioDAO = UsuarioDAO()
+        postagemDAO = PostagemDAO()
+
         comentarios = []
-        conn = connectar()
-        cursor = conn.cursor()
-        cursor.execute("""
-        SELECT * FROM tb_comentario;
-        """)
-        for linha in cursor.fetchall():
-            mensagem = linha[1]
-            dataHora = linha[2]
-            curtidas = linha[3]
 
-            comentario = Comentario(mensagem, dataHora, curtidas)
+        for row in result():
+            usuario = usuarioDAO.procurarUsuarioPorId(row[1])
+            postagem = postagemDAO.procurarPostagemPorId(row[0])
+            mensagem = row[2]
+            dataHora = row[3]
+            curtidas = row[4]
+
+            comentario = Comentario(usuario, postagem, mensagem, dataHora, curtidas)
             comentarios.append(comentario)
-
-        conn.close()
 
         return comentarios

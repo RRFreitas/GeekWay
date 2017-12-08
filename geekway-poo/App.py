@@ -92,8 +92,8 @@ def menuUsuario(usuario):
 
         #Opção que lista todas as solicitações de amizade pendentes
         elif(op == 4):
+            limparTela()
             if(len(usuarioDAO.listarSolicitacoes(usuario.id)) == 0):
-                limparTela()
                 print("Nenhuma solicitação pendente!")
 
             for solicitacao in usuarioDAO.listarSolicitacoes(usuario.id):
@@ -198,7 +198,7 @@ def menu():
 
             try:
                 user = Usuario(nome, email, senha)
-                usuarioDAO.inserirUsuario(user)
+                usuarioDAO.insert(user)
             except:
                 limparTela()
                 print("Oops! Houve algum problema... Talvez você tenha passado dos limites :P")

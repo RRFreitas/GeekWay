@@ -1,69 +1,66 @@
-import mysql.connector
+from database.DAO import DAO
+from database.UsuarioDAO import UsuarioDAO
 from models.Mensagem import Mensagem
-from database.ConfigDB import connectar
 
-class MensagemDAO():
+class MensagemDAO(DAO):
 
-    def inserirMensagem(mensagem: Mensagem):
-        idMensagem = 0
+    def __init__(self):
+        super(MensagemDAO, self).__init__()
+
+    def insert(self, mensagem: Mensagem):
         # Script de Inserção.
-        query = "INSERT INTO tb_mensagem_direta(remetente_id, destinatario_id, mensagem, dataHora, visualizada) " \
+        query = "INSERT INTO tb_mensagem_direta(remetente_id, destinatario_id, mensagem, data_hora, visualizada) " \
                 "VALUES(%s, %s, %s, %s, %s)"
         # Valores.
         values = (mensagem.remetente.id, mensagem.destinatario.id, mensagem.mensagem, mensagem.dataHora, mensagem.visualizada)
 
         try:
-            # Conexão com a base de dados.
-            conn = connectar()
-            # Preparando o cursor para a execução da consulta.
-            cursor = conn.cursor()
-            cursor.execute(query, values)
+            return super(MensagemDAO, self).insert(query, values)
+        except Exception as err:
+            print("Erro no banco de dados!")
+            print(err)
+            return
 
-            if cursor.lastrowid:
-                idMensagem = cursor.lastrowid
-            # Finalizando a persistência dos dados.
-            conn.commit()
-        except mysql.connector.Error as error:
-            print(error)
-        finally:
-            cursor.close()
-            conn.close()
-        # Retornar id da rede social.
-        return idMensagem
+    def delete(self, id):
+        query = "DELETE FROM tb_mensagem_direta WHERE id = %s"
+        values = (id,)
 
-    def deletar(self, id):
-        conn = connectar()
-        cursor = conn.cursor()
-        cursor.execute("DELETE FROM tb_mensagem WHERE id = ?", (id,))
-        conn.commit()
-        conn.close()
+        try:
+            self.execute(query, values)
+            return True
+        except Exception as err:
+            print(err)
+            return False
 
-    def atualizar(self, id, mensagem, dataHora, visualizada):
-        conn = connectar()
-        cursor = conn.cursor()
-        cursor.execute("""
-                          UPDATE tb_mensagem
-                          SET mensagem = ?, dataHora = ?, visualizada = ?
-                          WHERE id = ?;
-                      """, (mensagem, dataHora, visualizada, id))
-        conn.commit()
-        conn.close
+    def update(self, id, mensagem, dataHora, visualizada):
+        query = "UPDATE tb_mensagem_direta " \
+                "SET mensagem = %s, data_hora = %s, visualizada = %s " \
+                "WHERE id = %s"
+        values = (mensagem, dataHora, visualizada, id)
+
+        try:
+            self.execute(query, values)
+            return True
+        except Exception as err:
+            print(err)
+            return False
 
     def listar(self):
+        query = "SELECT * FROM tb_mensagem_direta;"
+        result = self.get_rows(query)
+
+        usuarioDAO = UsuarioDAO()
+
         mensagens = []
-        conn = connectar()
-        cursor = conn.cursor()
-        cursor.execute("""
-        SELECT * FROM tb_mensagem;
-        """)
-        for linha in cursor.fetchall():
-            mensagem = linha[1]
-            dataHora = linha[2]
-            visualizada = linha[3]
 
-            mensagem = Mensagem(mensagem, dataHora, visualizada)
+        for row in result:
+            remetente = usuarioDAO.procurarUsuarioPorId(row[1])
+            destinatario = usuarioDAO.procurarUsuarioPorId(row[2])
+            mensagem = row[3]
+            dataHora = row[4]
+            visualizada = row[5]
+
+            mensagem = Mensagem(remetente, destinatario, mensagem, dataHora, visualizada)
             mensagens.append(mensagem)
-
-        conn.close()
 
         return mensagens
