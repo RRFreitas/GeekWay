@@ -1,6 +1,6 @@
 from flask_restful import Resource, marshal_with
 from flask import request
-from models.Usuario import Usuario, usuario_campos
+from database.UsuarioDAO import UsuarioDAO
 
 class LoginResource(Resource):
 
@@ -8,7 +8,7 @@ class LoginResource(Resource):
     def post(self):
         dados = request.json
         try:
-            usuario = Usuario.findUserByEmail(dados['email'])
+            usuario = UsuarioDAO().procurarUsuarioPorEmail(dados['email'])
             if usuario is None:
                 return "Usuário não encontrado.", 404
             else:

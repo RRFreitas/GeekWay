@@ -3,6 +3,7 @@ angular.module("app").controller("registerCtrl", function($scope, registerServic
     $scope.user = {};
     
     $scope.fazerRegistro = function(user) {
+        user.data_nasc = moment(user.data_nasc).format('YYYY-MM-DD');
         registerService.fazerRegistro(user)
             .then(function(data) {
                 $state.go("login");
