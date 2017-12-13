@@ -1,6 +1,3 @@
-import sqlite3
-from flask_restful import fields
-
 '''
     Classe Grupo.
 '''

@@ -1,11 +1,9 @@
 import mysql.connector
-import psycopg2
 from common.ConfigDB import *
 
 def criarBanco():
     try:
-        #conn = mysql.connector.connect(**config) # Nome do BD.
-        conn = psycopg2.connect("dbname=%s user=%s password=%s" % (DB_NAME, DB_USER, DB_PASSWORD))
+        conn = mysql.connector.connect(**config)
         cursor = conn.cursor()
 
         cursor.execute("""
@@ -122,9 +120,14 @@ def criarBanco():
                 FOREIGN KEY(participante_id) REFERENCES tb_usuario(id)
             );
         """)
-    except psycopg2.ProgrammingError as err:
-        return
-    except mysql.connector.OperationalError:
-        print("Base de dados encontrada")
+    except mysql.connector.ProgrammingError as e:
+        if(e.args[0] == 1050):
+            return
+        elif(e.args[0] == 1049):
+            print("Por favor, crie a base de dados! Finalizando programa...")
+            exit()
+        else:
+            print(e)
+            exit()
     except:
         raise

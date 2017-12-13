@@ -1,11 +1,7 @@
-DB_NAME = 'geekway'
-DB_USER = 'postgres'
-DB_PASSWORD = 'rennanbd'
-
 config = {
   'user': 'root',
-  'password': '',
+  'password': 'ifpbinfo',
   'host': '127.0.0.1',
-  'database': DB_NAME,
+  'database': 'geekway',
   'raise_on_warnings': True
 }

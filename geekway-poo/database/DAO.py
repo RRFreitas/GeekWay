@@ -1,7 +1,6 @@
 import mysql.connector
-import psycopg2
 
-from common.ConfigDB import *
+from common.ConfigDB import config
 
 
 class Singleton(object):
@@ -25,11 +24,8 @@ class DAO(Singleton):
             Criar conexão.
         """
         try:
-            #self.connection = mysql.connector.connect(**config)
-            self.connection = psycopg2.connect("dbname=%s user=%s password=%s" % (DB_NAME, DB_USER, DB_PASSWORD))
+            self.connection = mysql.connector.connect(**config)
         except mysql.connector.Error as err:
-            print("Problema no banco de dados!\n", err)
-        except psycopg2.Error as err:
             print("Problema no banco de dados!\n", err)
         except Exception as err:
             print(err)
